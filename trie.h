@@ -7,8 +7,6 @@
  *
  *      @author   Yukang Chen  @date  2013-03-29 18:14:46
  *
- *      COPYRIGHT (C) 2006~2012, Nextop INC., ALL RIGHTS RESERVED.
- *
  *******************************************************************************/
 
 #if !defined(KINGTRIE_H)

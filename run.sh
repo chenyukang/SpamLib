@@ -13,6 +13,8 @@
 
 #!/bin/sh
 
-gcc -I/usr/include/python2.5 -I/usr/include/python2.5 -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -o libSpamSys.so -export-dybanuc  -shared spamsys.c KingUnicode.c 
+gcc -I/usr/include/python2.5 -I/usr/include/python2.5 -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 \
+ -Wall -Wstrict-prototypes -o libSpamSys.so -export-dybanuc  -shared spamsys.c unicode.c 
+
 
 

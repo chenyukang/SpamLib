@@ -17,8 +17,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "KingTrie.h"
-#include "KingUnicode.h"
+#include "trie.h"
+#include "unicode.h"
 
 /** 
  *   NOTICE:

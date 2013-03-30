@@ -12,8 +12,10 @@
 
 #!/bin/sh
 
-gcc -I/usr/include/python2.5 -I/usr/include/python2.5 -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 \
- -Wall -Wstrict-prototypes -o libSpamSys.so  -shared spamsys.c unicode.c 
+gcc -g ac.c unicode.c ac_iteractive.c -o iteractive_ac;
+gcc -g ac.c unicode.c ac_test.c -o test_ac;
+
+
 
 
 

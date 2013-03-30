@@ -22,7 +22,7 @@ extern "C" {
     struct TrieTreeNode;
 
     struct TrieTreeDict* 
-    TRIE_New_Dict(const char* dict_path);
+    TRIE_New_Dict(const char* path);
 
     void 
     TRIE_Destroy_Dict(struct TrieTreeDict* dict);
@@ -36,7 +36,7 @@ extern "C" {
     TRIE_Print_Word(struct TrieTreeNode *node);
 
     void
-    TRIE_Shield_Words(struct TrieTreeDict* dict, char*  src_string);
+    TRIE_Shield_Words(struct TrieTreeDict* dict, char*  str);
 
 #ifdef __cplusplus
 }

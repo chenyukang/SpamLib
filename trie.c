@@ -32,7 +32,6 @@ struct TrieTreeDict
 {
     struct TrieTreeNode*    root_node;
     unsigned int            node_count;
-    unsigned int            dict_size;
     FILE*                   dict_file;
     char                    dict_path[TRIE_TREE_DICT_PATH_LENGTH];
 };

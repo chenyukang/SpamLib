@@ -16,7 +16,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+#include <string.h>
+    
     struct TrieTreeDict;
     struct TrieTreeNode;
 

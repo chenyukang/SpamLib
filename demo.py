@@ -1,10 +1,10 @@
-import libSpamSys
+import libWordFilter
 import os
 import sys
 
 
 def check_str(msg):
-    print libSpamSys.spam_check(msg)
+    print libWordFilter.filter_check(msg)
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:

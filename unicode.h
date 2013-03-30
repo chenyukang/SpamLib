@@ -6,11 +6,12 @@
 extern "C"{
 #endif
 
-    unsigned int UTF8toUnicode(char* utf8, unsigned int utf8length,
-                               unsigned int* unicode, unsigned int unicodelength);
+#include <string.h>
+    size_t UTF8toUnicode(char* utf8, size_t utf8length,
+                               unsigned int* unicode, size_t unicodelength);
 
-    unsigned int UnicodetoUTF8(unsigned int* unicode, unsigned int unicodelength,
-                               char* utf8, unsigned int utf8length);
+    size_t UnicodetoUTF8(unsigned int* unicode, size_t unicodelength,
+                               char* utf8, size_t utf8length);
 
 #ifdef __cplusplus
 }

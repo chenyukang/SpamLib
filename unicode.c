@@ -21,14 +21,14 @@
         }                                                               \
     }while (0)
 
-unsigned int UTF8toUnicode(char* utf8, unsigned int utf8length,
-                           unsigned int* unicode, unsigned int unicodelength)
+size_t UTF8toUnicode(char* utf8, size_t utf8length,
+                           unsigned int* unicode, size_t unicodelength)
 {
-    unsigned int utf8_cursor = 0;
-    unsigned int unicode_cursor = 0;
-    unsigned int offset;
-    unsigned char* p;
+    size_t utf8_cursor = 0;
+    size_t unicode_cursor = 0;
+    size_t offset;
     unsigned int e;
+    unsigned char* p;
     while ((utf8_cursor < utf8length) && (unicode_cursor < unicodelength))
     {
         p = (unsigned char*)&utf8[utf8_cursor];
@@ -102,13 +102,13 @@ unsigned int UTF8toUnicode(char* utf8, unsigned int utf8length,
     return unicode_cursor;
 }
 
-unsigned int UnicodetoUTF8(unsigned int* unicode, unsigned int unicodelength,
-                           char* utf8, unsigned int utf8length)
+size_t UnicodetoUTF8(unsigned int* unicode, size_t unicodelength,
+                           char* utf8, size_t utf8length)
 {
-    unsigned int unicode_cursor = 0;
-    unsigned int utf8_cursor = 0;
-    unsigned int offset;
-    unsigned int u;
+    size_t unicode_cursor = 0;
+    size_t utf8_cursor = 0;
+    size_t offset;
+    size_t u;
     unsigned char* e;
 
     while ((unicode_cursor < unicodelength) && (utf8_cursor < utf8length))

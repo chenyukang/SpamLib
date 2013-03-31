@@ -8,6 +8,7 @@
 #define ROOT_CHAR    (0xFFFFFFFF)
 #define AC_CHILD_NUM (100)
 #define SHIEL_REPLACE_WORD (0x0000002A)
+#define QLENGTH  50000
 #define USE_AUTOMATION 1
 
 struct AC_Node* AC_New_Node(unsigned int value) {
@@ -34,7 +35,6 @@ static int AC_Add_SubNode(struct AC_Node* parent,
         parent->children = (struct AC_Node**)realloc(parent->children, size * sizeof(struct AC_Node*));
         parent->size = size;
         if(parent->children == NULL) {
-            fprintf(stderr, "[AC_Dict]: realloc failed");
             return -1;
         }
     }
@@ -73,7 +73,7 @@ struct AC_Node* AC_has_child(struct AC_Node* node, unsigned int val) {
 
 void AC_verify(struct AC_Node* node) {
     if(node->count != 0) {
-        int k;
+        size_t k;
         for(k=0; k<node->count-1; k++) {
             if(!(node->children[k]->value < node->children[k+1]->value)) {
                 printf(" %d <- %d\n", node->children[k]->value,
@@ -88,8 +88,8 @@ int AC_Add_Word(struct AC_Dict* dict, char* word, size_t len) {
     assert(dict && word);
     struct AC_Node* node = dict->root;
     struct AC_Node* child = NULL;
-    struct AC_Node* new = NULL;
-    int i, k;
+    struct AC_Node* _new = NULL;
+    size_t i, k;
     unsigned int ch;
     size_t unicode_len;
     unsigned int unicode_buf[256];
@@ -101,9 +101,9 @@ int AC_Add_Word(struct AC_Dict* dict, char* word, size_t len) {
             if( ch == node->children[k]->value ) break;
         }
         if((child = AC_has_child(node, ch)) == NULL) { //no found , add child
-            new = AC_New_Node(ch);
-            AC_Add_SubNode(node, new);
-            node = new;
+            _new = AC_New_Node(ch);
+            AC_Add_SubNode(node, _new);
+            node = _new;
         } else {
             node = child;
         }
@@ -117,12 +117,12 @@ void AC_Build_Automation(struct AC_Dict* dict) {
     struct AC_Node* node;
     struct AC_Node* pfail;
     struct AC_Node* child;
-    struct AC_Node* Q[50000]; //NOTE size
+    struct AC_Node* Q[QLENGTH]; //NOTE size
     unsigned int v;
-    int head, tail, i;
+    size_t head, tail, i;
     
     root->fail = NULL;
-    memset(Q, 0, sizeof(Q[0]) * 50000);
+    memset(Q, 0, sizeof(Q[0]) * QLENGTH);
     head = tail = 0;
     Q[head++] = root;
     
@@ -171,14 +171,11 @@ struct AC_Dict* AC_New_Dict(const char* path) {
 
     dict->dict_path = strdup(path);
     path_length = strlen(path);
-    
-    if(path_length > 256) {
-        fprintf(stderr, "[AC_Dict] : path %s is too long", path);
+    if(path_length > 256) { 
         return NULL;
     }
     file = fopen(path, "r");
-    if(file == NULL) {
-        fprintf(stderr, "[AC_Dict]: path %s can not opend", path);
+    if(file == NULL) { //open failed
         return NULL;
     }
 
@@ -194,7 +191,6 @@ struct AC_Dict* AC_New_Dict(const char* path) {
     AC_Build_Automation(dict);
 #endif
     AC_verify(dict->root);
-    printf("build finished\n");
     return dict;
 }
 
@@ -268,7 +264,7 @@ void AC_Shield_Word(struct AC_Dict* dict, char* str) {
 #endif
 
 static void AC_Destory_Node(struct AC_Node* node) {
-    int k;
+    size_t k;
     for(k=0; k<node->count; k++) {
         if(node->children[k]) {
             AC_Destory_Node(node->children[k]);

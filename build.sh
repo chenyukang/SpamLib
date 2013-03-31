@@ -12,8 +12,8 @@
 
 #!/bin/sh
 
-gcc -g ac.c unicode.c ac_iteractive.c -o iteractive_ac;
-gcc -g ac.c unicode.c ac_test.c -o test_ac;
+g++ -g ac.c unicode.c ac_iteractive.c -o iteractive_ac;
+g++ -g ac.c unicode.c ac_test.c -o test_ac;
 
 
 

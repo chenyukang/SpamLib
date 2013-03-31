@@ -1,9 +1,11 @@
 import libWordFilter
 import os
 import sys
-
+import libWordFilter
 
 def check_str(msg):
+    #if libWordFilter.filter_init("haha") == None:
+    #   print "error happend"
     print libWordFilter.filter_check(msg)
 
 if __name__ == '__main__':

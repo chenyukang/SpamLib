@@ -2,6 +2,10 @@
 #define _AC_H_
 #include <stdlib.h>
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+    
 struct AC_Node {
     struct AC_Node* fail;
     struct AC_Node** children;
@@ -17,9 +21,6 @@ struct AC_Dict {
     struct AC_Node* root;
 };
 
-//struct AC_Node;
-//struct AC_Dict;
-
 /* -------------------- API --------------------*/
 struct AC_Dict* AC_New_Dict(const char* path);
 void   AC_Destory_Dict(struct AC_Dict* dict);
@@ -29,5 +30,9 @@ void   AC_Shield_Word(struct AC_Dict* dict, char* str);
 /*  for Test  */
 void   AC_Build_Automation(struct AC_Dict* dict);
 int    AC_Add_Word(struct AC_Dict* dict, char* word, size_t len);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

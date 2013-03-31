@@ -1,5 +1,5 @@
-
 #include <stdio.h>
+#include "unicode.h"
 
 #define CheckSrcUTF8Length(start, offset, end)                          \
     do                                                                  \
@@ -22,24 +22,21 @@
     }while (0)
 
 size_t UTF8toUnicode(char* utf8, size_t utf8length,
-                           unsigned int* unicode, size_t unicodelength)
+                     unsigned int* unicode, size_t unicodelength)
 {
     size_t utf8_cursor = 0;
     size_t unicode_cursor = 0;
     size_t offset;
     unsigned int e;
     unsigned char* p;
-    while ((utf8_cursor < utf8length) && (unicode_cursor < unicodelength))
-    {
+    while ((utf8_cursor < utf8length) && (unicode_cursor < unicodelength)) {
         p = (unsigned char*)&utf8[utf8_cursor];
 
-        if (*p < 0xC0)
-        {
+        if (*p < 0xC0) {
             offset = 0;
             e = p[0];
         }
-        else if (*p < 0xE0) 
-        {
+        else if (*p < 0xE0) {
             /*2:<11000000>*/
             offset = 1;
             CheckSrcUTF8Length(utf8_cursor, offset, utf8length);
@@ -47,8 +44,7 @@ size_t UTF8toUnicode(char* utf8, size_t utf8length,
             e = (p[0] & 0x1f) << 6;
             e |= (p[1] & 0x3f);
         }
-        else if (*p < 0xF0)
-        {
+        else if (*p < 0xF0) {
             /*3:<11100000>*/
             offset = 2;
             CheckSrcUTF8Length(utf8_cursor, offset, utf8length);
@@ -57,8 +53,7 @@ size_t UTF8toUnicode(char* utf8, size_t utf8length,
             e |= (p[1] & 0x3f) << 6;
             e |= (p[2] & 0x3f);
         }
-        else if (*p < 0xF8)
-        {
+        else if (*p < 0xF8) {
             /*4:<11110000>*/
             offset = 3;
             CheckSrcUTF8Length(utf8_cursor, offset, utf8length);
@@ -68,8 +63,7 @@ size_t UTF8toUnicode(char* utf8, size_t utf8length,
             e |= (p[2] & 0x3f) << 6;
             e |= (p[3] & 0x3f);
         }
-        else if (*p < 0xFC) 
-        {
+        else if (*p < 0xFC)  {
             /*5:<11111000>*/
             offset = 4;
             CheckSrcUTF8Length(utf8_cursor, offset, utf8length);
@@ -80,8 +74,7 @@ size_t UTF8toUnicode(char* utf8, size_t utf8length,
             e |= (p[3] & 0x3f) << 6;
             e |= (p[4] & 0x3f);
         }
-        else
-        {
+        else {
             /*6:<11111100>*/
             offset = 5;
             CheckSrcUTF8Length(utf8_cursor, offset, utf8length);
@@ -103,7 +96,7 @@ size_t UTF8toUnicode(char* utf8, size_t utf8length,
 }
 
 size_t UnicodetoUTF8(unsigned int* unicode, size_t unicodelength,
-                           char* utf8, size_t utf8length)
+                     char* utf8, size_t utf8length)
 {
     size_t unicode_cursor = 0;
     size_t utf8_cursor = 0;
@@ -111,20 +104,17 @@ size_t UnicodetoUTF8(unsigned int* unicode, size_t unicodelength,
     size_t u;
     unsigned char* e;
 
-    while ((unicode_cursor < unicodelength) && (utf8_cursor < utf8length))
-    {
+    while ((unicode_cursor < unicodelength) && (utf8_cursor < utf8length)) {
         u = unicode[unicode_cursor];
         e = (unsigned char*)&utf8[utf8_cursor];
 
-        if (u < 0x80)
-        {
+        if (u < 0x80) {
             offset = 0;
             CheckDescUTF8Length(utf8_cursor, offset, utf8length);
 
             e[0] = u;
         }
-        else if (u < 0x800)
-        {
+        else if (u < 0x800) {
             /*<11011111> < 000 0000 0000>*/
             offset = 1;
             CheckDescUTF8Length(utf8_cursor, offset, utf8length);
@@ -132,8 +122,7 @@ size_t UnicodetoUTF8(unsigned int* unicode, size_t unicodelength,
             e[0] = ((u >> 6) & 0x1f)|0xc0;
             e[1] = (u & 0x3f)|0x80; 
         }
-        else if(u < 0x10000)
-        {
+        else if(u < 0x10000) {
             /*<11101111> <0000 0000 0000 0000>*/
             offset = 2;
             CheckDescUTF8Length(utf8_cursor, offset, utf8length);
@@ -142,8 +131,7 @@ size_t UnicodetoUTF8(unsigned int* unicode, size_t unicodelength,
             e[1] = ((u >> 6) & 0x3f)|0x80;
             e[2] = (u & 0x3f)|0x80; 
         }
-        else if(u < 0x200000)
-        {
+        else if(u < 0x200000) {
             /*<11110111> <0 0000 0000 0000 0000 0000>*/
             offset = 3;
             CheckDescUTF8Length(utf8_cursor, offset, utf8length);
@@ -153,8 +141,7 @@ size_t UnicodetoUTF8(unsigned int* unicode, size_t unicodelength,
             e[2] = ((u >> 6) & 0x3f)|0x80;
             e[3] = (u & 0x3f)|0x80; 
         }
-        else if(u < 0x4000000)
-        {
+        else if(u < 0x4000000) {
             /*<11111011> <00 0000 0000 0000 0000 0000 0000>*/
             offset = 4;
             CheckDescUTF8Length(utf8_cursor, offset, utf8length);
@@ -165,8 +152,7 @@ size_t UnicodetoUTF8(unsigned int* unicode, size_t unicodelength,
             e[3] = ((u >> 6) & 0x3f)|0x80;
             e[4] = (u & 0x3f)|0x80; 
         }
-        else
-        {
+        else {
             /*<11111101> <0000 0000 0000 0000 0000 0000 0000 0000>*/
             offset = 5;
             CheckDescUTF8Length(utf8_cursor, offset, utf8length);
@@ -185,4 +171,3 @@ size_t UnicodetoUTF8(unsigned int* unicode, size_t unicodelength,
 
     return utf8_cursor;
 }
-

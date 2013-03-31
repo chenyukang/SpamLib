@@ -8,21 +8,7 @@
 #define ROOT_CHAR    (0xFFFFFFFF)
 #define AC_CHILD_NUM (100)
 #define SHIEL_REPLACE_WORD (0x0000002A)
-
-struct AC_Node {
-    struct AC_Node* fail;
-    struct AC_Node** children;
-    unsigned int count;
-    unsigned int size;
-    unsigned int value;
-    unsigned int flag;
-    unsigned int depth;
-};
-    
-struct AC_Dict {
-    char* dict_path;
-    struct AC_Node* root;
-};
+#define USE_AUTOMATION 1
 
 struct AC_Node* AC_New_Node(unsigned int value) {
     struct AC_Node* node = (struct AC_Node*)malloc(sizeof(struct AC_Node));
@@ -42,7 +28,7 @@ static int AC_Add_SubNode(struct AC_Node* parent,
     assert(parent && child);
     assert(parent->count <= parent->size);
     size_t size = 0;
-    int i, k;
+    size_t i, k;
     if(parent->count == parent->size) {
         size = parent->size + AC_CHILD_NUM;
         parent->children = (struct AC_Node**)realloc(parent->children, size * sizeof(struct AC_Node*));
@@ -72,9 +58,9 @@ static int AC_Add_SubNode(struct AC_Node* parent,
 
 //Binary search
 struct AC_Node* AC_has_child(struct AC_Node* node, unsigned int val) {
-    int i;
     int mid, left, right;
     struct AC_Node** p = node->children;
+    if(node->count == 0) return NULL;
     left = 0, right = node->count-1;
     while(left <= right) {
         mid = (left + right)>>1;
@@ -98,16 +84,19 @@ void AC_verify(struct AC_Node* node) {
     }
 }
 
-int AC_Add_Word(struct AC_Dict* dict, unsigned int* word, size_t len) {
+int AC_Add_Word(struct AC_Dict* dict, char* word, size_t len) {
     assert(dict && word);
     struct AC_Node* node = dict->root;
     struct AC_Node* child = NULL;
     struct AC_Node* new = NULL;
     int i, k;
     unsigned int ch;
-    for(i=0; i<len; i++) {
+    size_t unicode_len;
+    unsigned int unicode_buf[256];
+    unicode_len = UTF8toUnicode(word, len, unicode_buf, 256);
+    for(i=0; i<unicode_len; i++) {
         assert(node);
-        ch = word[i];
+        ch = unicode_buf[i];
         for(k=0; k<node->count; k++) {
             if( ch == node->children[k]->value ) break;
         }
@@ -123,19 +112,20 @@ int AC_Add_Word(struct AC_Dict* dict, unsigned int* word, size_t len) {
     return 0;
 }
 
-struct AC_Node* Q[500001];
-int head, tail;
 void AC_Build_Automation(struct AC_Dict* dict) {
     struct AC_Node* root = dict->root;
     struct AC_Node* node;
     struct AC_Node* pfail;
     struct AC_Node* child;
+    struct AC_Node* Q[50000]; //NOTE size
     unsigned int v;
-    int i;
+    int head, tail, i;
+    
     root->fail = NULL;
-    memset(Q, 0, sizeof(Q[0]) * 500001);
+    memset(Q, 0, sizeof(Q[0]) * 50000);
     head = tail = 0;
     Q[head++] = root;
+    
     while(tail != head) {
         node = Q[tail++];
         for(i=0; i<node->count; i++) {
@@ -159,7 +149,7 @@ void AC_Build_Automation(struct AC_Dict* dict) {
     }
 }
 
-struct AC_Dict* AC_New_Empty_Dict() {
+static struct AC_Dict* AC_New_Empty_Dict(void) {
     struct AC_Dict* dict = (struct AC_Dict*)malloc(sizeof(struct AC_Dict));
     memset(dict, 0, sizeof(struct AC_Dict));
     dict->root = (struct AC_Node*)AC_New_Node(ROOT_CHAR);
@@ -168,16 +158,20 @@ struct AC_Dict* AC_New_Empty_Dict() {
 
 struct AC_Dict* AC_New_Dict(const char* path) {
     char                    utf8_line[256];
-    unsigned int            unicode_line[256];
     size_t                  utf8_length;
-    size_t                  unicode_length;
     struct AC_Dict* dict = NULL;
 
     size_t  path_length = 0;
     FILE* file;
-    assert(path);
 
+    dict = AC_New_Empty_Dict();
+    if(path == 0) { //mainly for testing
+        return dict;
+    }
+
+    dict->dict_path = strdup(path);
     path_length = strlen(path);
+    
     if(path_length > 256) {
         fprintf(stderr, "[AC_Dict] : path %s is too long", path);
         return NULL;
@@ -187,27 +181,24 @@ struct AC_Dict* AC_New_Dict(const char* path) {
         fprintf(stderr, "[AC_Dict]: path %s can not opend", path);
         return NULL;
     }
-    dict = (struct AC_Dict*)malloc(sizeof(struct AC_Dict));
-    memset(dict, 0, sizeof(struct AC_Dict));
-    dict->dict_path = strdup(path);
-    dict->root = (struct AC_Node*)AC_New_Node(ROOT_CHAR);
 
     //add sensitive words into dict tree
     while((fgets(utf8_line, sizeof(utf8_line), file) != NULL)) {
         utf8_length = strlen(utf8_line);
         if(utf8_line > 0 && utf8_line[utf8_length-1] == '\n')
             utf8_length--;
-        unicode_length = UTF8toUnicode(utf8_line, utf8_length, unicode_line, 256);
-        AC_Add_Word(dict, unicode_line, unicode_length);
+         AC_Add_Word(dict, utf8_line, utf8_length);
     }
     fclose(file);
+#ifdef USE_AUTOMATION
     AC_Build_Automation(dict);
+#endif
     AC_verify(dict->root);
     printf("build finished\n");
     return dict;
 }
 
-#if 1
+#ifdef USE_AUTOMATION
 void AC_Shield_Word(struct AC_Dict* dict, char* str) {
     size_t src_len, unicode_len;
     unsigned int* unicode_buf;
@@ -237,9 +228,8 @@ void AC_Shield_Word(struct AC_Dict* dict, char* str) {
     UnicodetoUTF8(unicode_buf, unicode_len, str, src_len);
     free(unicode_buf);
 }
-#endif
 
-#if 0
+#else
 void AC_Shield_Word(struct AC_Dict* dict, char* str) {
     size_t src_len, unicode_len;
     unsigned int* unicode_buf;

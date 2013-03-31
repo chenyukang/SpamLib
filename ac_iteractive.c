@@ -4,22 +4,21 @@
 #include <string.h>
 
 int main() {
-    struct AC_Dict* dict = AC_New_Empty_Dict();
-    char str1[100];
-    char str2[100];
-    strcpy(str1, "泽");
-    strcpy(str2, "江泽民");
-    unsigned int length;
-    unsigned int buf[256];
-    length = UTF8toUnicode(str1, strlen(str1), buf, 256);
-    AC_Add_Word(dict, buf, length);
-    length = UTF8toUnicode(str1, strlen(str1), buf, 256);
-    AC_Add_Word(dict, buf, length);
+    struct AC_Dict* dict = AC_New_Dict("sensitive_words.conf");
+    char str1[256];
+    char str2[256];
+    printf("Input all keywords, use \"eof\" to end:\n");
+    while(1) {
+        scanf("%s", str1);
+        if(strcmp(str1, "eof") == 0)
+            break;
+        AC_Add_Word(dict, str1, (size_t)strlen(str1));
+    }
     AC_Build_Automation(dict);
-    char str[100];
-    while(gets(str)) {
-        printf("gots: %s\n", str);
-        AC_Shield_Word(dict, str);
-        printf("result: %s\n", str);
+    printf("Input word to query:\n");
+    while(1) {
+        scanf("%s", str2);
+        AC_Shield_Word(dict, str2);
+        printf("result: %s\n", str2);
     }
 }

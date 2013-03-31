@@ -3,21 +3,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "trie.h"
+#include "ac.h"
 
-static struct TrieTreeDict* dict;
+static struct AC_Dict* dict = NULL;
 
 static PyObject*  
 filter_check(PyObject* self, PyObject* args) {  
     const char* src;
     if (!PyArg_ParseTuple(args, "s", &src))  
         return NULL;
+    printf("now got: %s\n", src);
     if(dict == NULL) {
-        dict = TRIE_New_Dict("sensitive_words.conf");
+        dict = AC_New_Dict("sensitive_words.conf");
     }
     assert(dict);
     char* words = strdup(src);
-    TRIE_Shield_Words(dict, words);
+    AC_Shield_Word(dict, words);
     printf("result: %s\n", words);
     return Py_BuildValue("s", words);
 }
@@ -28,9 +29,9 @@ filter_init(PyObject* self, PyObject* args) {
     if(!PyArg_ParseTuple(args, "s", &filename))
         return NULL;
     if(dict != NULL) {
-        TRIE_Destroy_Dict(dict);
+        AC_Destory_Dict(dict);
     }
-    dict = TRIE_New_Dict(filename);
+    dict = AC_New_Dict(filename);
     return Py_BuildValue("i", 1);
 }
 

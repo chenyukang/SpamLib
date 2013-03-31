@@ -10,7 +10,7 @@
 //since dict is empty, all words should keep same
 int emptydict_test() {
     const char* file = "sensitive_words.conf";
-    struct AC_Dict* dict = AC_New_Empty_Dict();
+    struct AC_Dict* dict = AC_New_Dict(0);
     FILE* fp = fopen(file, "r");
     char line[256];
     char cmp[256];
@@ -72,11 +72,11 @@ int random_test() {
     char* buf[4000];
     char line[246];
     char cmp[256];
-    unsigned int len;
-    int i;
+    unsigned int len, prev_len;
+    int i, k;
     int line_cnt = 0;
     FILE* fp = fopen(file, "r");
-    struct AC_Dict* dict = AC_New_Empty_Dict();
+    struct AC_Dict* dict = AC_New_Dict(0);
     memset(buf, 0, sizeof(buf));
     while((fgets(line, sizeof(line), fp) != NULL)) {
         len = strlen(line);
@@ -87,7 +87,7 @@ int random_test() {
 
     for(i=0; i<line_cnt; i++) {
         if(i%2 == 0) {
-            AC_Shield_Word(dict, buf[i]);
+            AC_Add_Word(dict, buf[i], (size_t)strlen(buf[i]));
         }
     }
 
@@ -99,7 +99,29 @@ int random_test() {
             memset(cmp, 0, sizeof(cmp));
             strcpy(cmp, buf[i]);
             AC_Shield_Word(dict, line);
-            assert(strcmp(line, cmp) == 0);
+            if(strcmp(line, cmp) != 0) {
+                //printf("results: %s cmp: %s\n", line, cmp);
+                //must have one or more *
+                for(k=0; k<strlen(line); k++) {
+                    if(line[k] == '*') break;
+                }
+                if(k == strlen(line)) {
+                    assert(0);
+                }
+            }
+            //assert(strcmp(line, cmp) == 0);
+        } else { //for all word added into dict, should be replace with *
+            memset(line, 0, sizeof(line));
+            strcpy(line, buf[i]);
+            prev_len = strlen(line);
+            AC_Shield_Word(dict, line);
+            assert(strlen(line) <= prev_len);
+            for(k=0; k<strlen(line); k++) {
+                if(line[k] != '*') {
+                    printf("really: %s\n", line);
+                    break;
+                }
+            }
         }
     }
     for(i=0; i<line_cnt; i++)
@@ -107,14 +129,8 @@ int random_test() {
     AC_Destory_Dict(dict);
 }
 
-unsigned int conv_util(char* str, unsigned int* res) {
-    size_t length = strlen(str);
-    size_t unicode_length = UTF8toUnicode(str, strlen(str), res, 256);
-    return unicode_length;
-}
-
 int one_char_test() {
-    struct AC_Dict* dict = AC_New_Empty_Dict();
+    struct AC_Dict* dict = AC_New_Dict(0);
     char c;
     unsigned int len;
     unsigned int* res = (unsigned int*)malloc(sizeof(unsigned int) * 256);
@@ -122,8 +138,7 @@ int one_char_test() {
     for(c='a'; c<='z'; c++) {
         memset(line, 0, sizeof(line));
         line[0] = c;
-        len = conv_util(line, res);
-        AC_Add_Word(dict, res, len);
+        AC_Add_Word(dict, line, 1);
     }
     AC_Build_Automation(dict);
     for(c='a'; c<='z'; c++) {
@@ -142,6 +157,7 @@ int one_char_test() {
     }
     AC_Destory_Dict(dict);
     free(res);
+    return 0;
 }
 
 
@@ -150,5 +166,6 @@ int main() {
     all_keyword_test();
     one_char_test();
     random_test();
+    printf("all tests passed\n");
     return 0;
 }

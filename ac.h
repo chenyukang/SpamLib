@@ -2,8 +2,23 @@
 #define _AC_H_
 #include <stdlib.h>
 
-struct AC_Node;
-struct AC_Dict;
+struct AC_Node {
+    struct AC_Node* fail;
+    struct AC_Node** children;
+    size_t size;
+    unsigned int count;
+    unsigned int value;
+    unsigned int flag;
+    unsigned int depth;
+};
+    
+struct AC_Dict {
+    char* dict_path;
+    struct AC_Node* root;
+};
+
+//struct AC_Node;
+//struct AC_Dict;
 
 /* -------------------- API --------------------*/
 struct AC_Dict* AC_New_Dict(const char* path);
@@ -11,9 +26,8 @@ void   AC_Destory_Dict(struct AC_Dict* dict);
 void   AC_Shield_Word(struct AC_Dict* dict, char* str);
 /* -------------------- API -------------------- */
 
-/*  Test Uitl */
+/*  for Test  */
 void   AC_Build_Automation(struct AC_Dict* dict);
-int    AC_Add_Word(struct AC_Dict* dict, unsigned int* word, size_t len);
-struct AC_Dict* AC_New_Empty_Dict();
+int    AC_Add_Word(struct AC_Dict* dict, char* word, size_t len);
 
 #endif

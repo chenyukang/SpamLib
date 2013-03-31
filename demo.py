@@ -6,7 +6,7 @@ import libWordFilter
 def check_str(msg):
     #if libWordFilter.filter_init("haha") == None:
     #   print "error happend"
-    print libWordFilter.filter_check(msg)
+    print libWordFilter.check(msg)
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:

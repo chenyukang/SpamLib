@@ -8,7 +8,7 @@
 #define ROOT_CHAR    (0xFFFFFFFF)
 #define AC_CHILD_NUM (100)
 #define SHIEL_REPLACE_WORD (0x0000002A)
-#define QLENGTH  500000
+#define QLENGTH  5000000
 
 struct AC_Node* AC_New_Node(unsigned int value) {
     struct AC_Node* node = (struct AC_Node*)malloc(sizeof(struct AC_Node));
@@ -120,7 +120,9 @@ void AC_Build_Automation(struct AC_Dict* dict) {
     struct AC_Node* node;
     struct AC_Node* pfail;
     struct AC_Node* child;
-    struct AC_Node* Q[QLENGTH]; //NOTE size
+    //NOTE size
+    struct AC_Node** Q = (struct AC_Node**)
+                         (malloc(sizeof(struct AC_Node*) * QLENGTH));
     unsigned int v;
     size_t head, tail, i;
     
@@ -128,7 +130,6 @@ void AC_Build_Automation(struct AC_Dict* dict) {
     memset(Q, 0, sizeof(Q[0]) * QLENGTH);
     head = tail = 0;
     Q[head++] = root;
-    
     while(tail != head) {
         node = Q[tail++];
         for(i=0; i<node->count; i++) {
@@ -147,9 +148,11 @@ void AC_Build_Automation(struct AC_Dict* dict) {
                 if(pfail == NULL)
                     node->children[i]->fail = root;
             }
+            if(head >= QLENGTH) break;
             Q[head++] = node->children[i];
         }
     }
+    free(Q);
 }
 
 static struct AC_Dict* AC_New_Empty_Dict(void) {
@@ -187,7 +190,7 @@ struct AC_Dict* AC_New_Dict(const char* path) {
         utf8_length = strlen(utf8_line);
         if(utf8_line > 0 && utf8_line[utf8_length-1] == '\n')
             utf8_length--;
-         AC_Add_Word(dict, utf8_line, utf8_length);
+        AC_Add_Word(dict, utf8_line, utf8_length);
     }
     fclose(file);
     AC_Build_Automation(dict);

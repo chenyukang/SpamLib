@@ -159,10 +159,6 @@ static struct AC_Dict* AC_New_Empty_Dict(void) {
     return dict;
 }
 
-int AC_Init_Dict(struct AC_Dict* dict) {
-    return 0;
-}
-
 struct AC_Dict* AC_New_Dict(const char* path) {
     char                    utf8_line[256];
     size_t                  utf8_length;

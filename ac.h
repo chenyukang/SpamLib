@@ -24,7 +24,6 @@ struct AC_Dict {
 /* -------------------- API --------------------*/
 struct AC_Dict* AC_New_Dict(const char* path);
 void   AC_Destory_Dict(struct AC_Dict* dict);
-int    AC_Init_Dict(struct AC_Dict* dict);
 int    AC_Shield_Word(struct AC_Dict* dict, char* str);
 /* -------------------- API -------------------- */
 

@@ -8,7 +8,7 @@
 #define ROOT_CHAR    (0xFFFFFFFF)
 #define AC_CHILD_NUM (100)
 #define SHIEL_REPLACE_WORD (0x0000002A)
-#define QLENGTH  50000
+#define QLENGTH  500000
 #define USE_AUTOMATION 1
 
 struct AC_Node* AC_New_Node(unsigned int value) {
@@ -94,6 +94,9 @@ int AC_Add_Word(struct AC_Dict* dict, char* word, size_t len) {
     size_t unicode_len;
     unsigned int unicode_buf[256];
     unicode_len = UTF8toUnicode(word, len, unicode_buf, 256);
+    if(unicode_len == 0) {
+        return -1;
+    }
     for(i=0; i<unicode_len; i++) {
         assert(node);
         ch = unicode_buf[i];
@@ -156,6 +159,10 @@ static struct AC_Dict* AC_New_Empty_Dict(void) {
     return dict;
 }
 
+int AC_Init_Dict(struct AC_Dict* dict) {
+    return 0;
+}
+
 struct AC_Dict* AC_New_Dict(const char* path) {
     char                    utf8_line[256];
     size_t                  utf8_length;
@@ -166,9 +173,11 @@ struct AC_Dict* AC_New_Dict(const char* path) {
 
     dict = AC_New_Empty_Dict();
     if(path == 0) { //mainly for testing
+#ifdef USE_AUTOMATION
+        AC_Build_Automation(dict);
         return dict;
+#endif
     }
-
     dict->dict_path = strdup(path);
     path_length = strlen(path);
     if(path_length > 256) { 
@@ -195,7 +204,7 @@ struct AC_Dict* AC_New_Dict(const char* path) {
 }
 
 #ifdef USE_AUTOMATION
-void AC_Shield_Word(struct AC_Dict* dict, char* str) {
+int AC_Shield_Word(struct AC_Dict* dict, char* str) {
     size_t src_len, unicode_len;
     unsigned int* unicode_buf;
     unsigned int i = 0, k;
@@ -207,6 +216,9 @@ void AC_Shield_Word(struct AC_Dict* dict, char* str) {
     src_len = strlen(str) + 1;
     unicode_buf = (unsigned int*)malloc(src_len * sizeof(unsigned int));
     unicode_len = UTF8toUnicode(str, src_len, unicode_buf, src_len);
+    if(unicode_len == -1){
+        return -1;
+    }
     node = dict->root;
     while( i < unicode_len ) {
         val = unicode_buf[i];
@@ -223,10 +235,11 @@ void AC_Shield_Word(struct AC_Dict* dict, char* str) {
     }
     UnicodetoUTF8(unicode_buf, unicode_len, str, src_len);
     free(unicode_buf);
+    return 0;
 }
 
 #else
-void AC_Shield_Word(struct AC_Dict* dict, char* str) {
+int AC_Shield_Word(struct AC_Dict* dict, char* str) {
     size_t src_len, unicode_len;
     unsigned int* unicode_buf;
     unsigned int i = 0, j, k;
@@ -238,6 +251,9 @@ void AC_Shield_Word(struct AC_Dict* dict, char* str) {
     src_len = strlen(str) + 1;
     unicode_buf = (unsigned int*)malloc(src_len * sizeof(unsigned int));
     unicode_len = UTF8toUnicode(str, src_len, unicode_buf, src_len);
+    if(unicode_len == 0) {
+        return -1;
+    }
     while( i < unicode_len ) {
         node = dict->root;
         is_matched = 0;
@@ -260,6 +276,7 @@ void AC_Shield_Word(struct AC_Dict* dict, char* str) {
     }
     UnicodetoUTF8(unicode_buf, unicode_len, str, src_len);
     free(unicode_buf);
+    return 0;
 }
 #endif
 

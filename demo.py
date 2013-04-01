@@ -1,12 +1,13 @@
-import libWordFilter
+#!/usr/bin/env python
+#coding=utf-8
 import os
 import sys
-import libWordFilter
+import ac_dict
 
 def check_str(msg):
-    #if libWordFilter.filter_init("haha") == None:
-    #   print "error happend"
-    print libWordFilter.check(msg)
+    d = ac_dict.AC_Dict("sensitive_words.conf")
+    print msg, "==>", d.check(msg)
+    
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:

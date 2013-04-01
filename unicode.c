@@ -4,20 +4,16 @@
 #define CheckSrcUTF8Length(start, offset, end)                          \
     do                                                                  \
     {                                                                   \
-        if (start + offset >= end)                                      \
-        {                                                               \
-            fputs("Decoding UTF-8 to Unicode failed, Check the input using UTF-8 encoding!", \
-                  stderr);                                              \
+        if (start + offset >= end) {                                    \
+            return 0;                                                   \
         }                                                               \
     }while (0)
 
 #define CheckDescUTF8Length(start, offset, end)                         \
     do                                                                  \
     {                                                                   \
-        if (start + offset >= end)                                      \
-        {                                                               \
-            fputs("Decoding Unicode to UTF-8 failed, Not enough UTF-8 buffer!", \
-                  stderr);                                              \
+        if (start + offset >= end){                                     \
+            return 0;                                                   \
         }                                                               \
     }while (0)
 

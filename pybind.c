@@ -128,6 +128,7 @@ static PyMethodDef module_methods[] = {
 #ifndef PyMODINIT_FUNC 		                 /* declarations for DLL import/export */
 #define PyMODINIT_FUNC void
 #endif
+
 PyMODINIT_FUNC
 initac_dict(void) {
 	PyObject* m;

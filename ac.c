@@ -9,7 +9,6 @@
 #define AC_CHILD_NUM (100)
 #define SHIEL_REPLACE_WORD (0x0000002A)
 #define QLENGTH  500000
-#define USE_AUTOMATION 1
 
 struct AC_Node* AC_New_Node(unsigned int value) {
     struct AC_Node* node = (struct AC_Node*)malloc(sizeof(struct AC_Node));
@@ -32,7 +31,8 @@ static int AC_Add_SubNode(struct AC_Node* parent,
     size_t i, k;
     if(parent->count == parent->size) {
         size = parent->size + AC_CHILD_NUM;
-        parent->children = (struct AC_Node**)realloc(parent->children, size * sizeof(struct AC_Node*));
+        parent->children = (struct AC_Node**)realloc(parent->children,
+                                                     size * sizeof(struct AC_Node*));
         parent->size = size;
         if(parent->children == NULL) {
             return -1;
@@ -169,10 +169,8 @@ struct AC_Dict* AC_New_Dict(const char* path) {
 
     dict = AC_New_Empty_Dict();
     if(path == 0) { //mainly for testing
-#ifdef USE_AUTOMATION
         AC_Build_Automation(dict);
         return dict;
-#endif
     }
     dict->dict_path = strdup(path);
     path_length = strlen(path);
@@ -192,14 +190,11 @@ struct AC_Dict* AC_New_Dict(const char* path) {
          AC_Add_Word(dict, utf8_line, utf8_length);
     }
     fclose(file);
-#ifdef USE_AUTOMATION
     AC_Build_Automation(dict);
-#endif
     AC_verify(dict->root);
     return dict;
 }
 
-#ifdef USE_AUTOMATION
 int AC_Shield_Word(struct AC_Dict* dict, char* str) {
     size_t src_len, unicode_len;
     unsigned int* unicode_buf;
@@ -233,48 +228,6 @@ int AC_Shield_Word(struct AC_Dict* dict, char* str) {
     free(unicode_buf);
     return 0;
 }
-
-#else
-int AC_Shield_Word(struct AC_Dict* dict, char* str) {
-    size_t src_len, unicode_len;
-    unsigned int* unicode_buf;
-    unsigned int i = 0, j, k;
-    int is_matched = 0;
-    struct AC_Node* node;
-    struct AC_Node* next;
-    assert(str && dict);
-
-    src_len = strlen(str) + 1;
-    unicode_buf = (unsigned int*)malloc(src_len * sizeof(unsigned int));
-    unicode_len = UTF8toUnicode(str, src_len, unicode_buf, src_len);
-    if(unicode_len == 0) {
-        return -1;
-    }
-    while( i < unicode_len ) {
-        node = dict->root;
-        is_matched = 0;
-        j = 0;
-        while((next = AC_has_child(node, unicode_buf[i+j])) &&
-              (i + j < unicode_len)) {
-            j++;
-            if(next->flag != 0) {
-                for(k=0; k<j; k++) 
-                    unicode_buf[i+k] = SHIEL_REPLACE_WORD;
-                is_matched = 1;
-                break;
-            }
-            node = next;
-        }
-        if(is_matched)
-            i += j;
-        else
-            i++;
-    }
-    UnicodetoUTF8(unicode_buf, unicode_len, str, src_len);
-    free(unicode_buf);
-    return 0;
-}
-#endif
 
 static void AC_Destory_Node(struct AC_Node* node) {
     size_t k;

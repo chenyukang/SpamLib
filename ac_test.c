@@ -69,12 +69,13 @@ int all_keyword_test() {
 //so this test case is same
 int random_test() {
     const char* file = "sensitive_words.conf";
+    unsigned int len, prev_len;
+    int line_cnt = 0;
     char* buf[4000];
     char line[246];
     char cmp[256];
-    unsigned int len, prev_len;
     int i, k;
-    int line_cnt = 0;
+    
     FILE* fp = fopen(file, "r");
     struct AC_Dict* dict = AC_New_Dict(0);
     memset(buf, 0, sizeof(buf));
@@ -131,10 +132,12 @@ int random_test() {
 
 int one_char_test() {
     struct AC_Dict* dict = AC_New_Dict(0);
-    char c;
     unsigned int len;
-    unsigned int* res = (unsigned int*)malloc(sizeof(unsigned int) * 256);
+    unsigned int* res;
     char line[256];
+    char c;
+    
+    res = (unsigned int*)malloc(sizeof(unsigned int) * 256);
     for(c='a'; c<='z'; c++) {
         memset(line, 0, sizeof(line));
         line[0] = c;

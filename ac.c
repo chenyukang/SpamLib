@@ -25,10 +25,12 @@ struct AC_Node* AC_New_Node(unsigned int value) {
 //keep children in order, so query is more fast
 static int AC_Add_SubNode(struct AC_Node* parent,
                           struct AC_Node* child) {
-    assert(parent && child);
-    assert(parent->count <= parent->size);
     size_t size = 0;
     size_t i, k;
+    
+    assert(parent && child);
+    assert(parent->count <= parent->size);
+    
     if(parent->count == parent->size) {
         size = parent->size + AC_CHILD_NUM;
         parent->children = (struct AC_Node**)realloc(parent->children,
@@ -43,6 +45,7 @@ static int AC_Add_SubNode(struct AC_Node* parent,
         if(parent->children[i]->value > child->value)
             break;
     }
+    
     if(i == parent->count)  //append to last pos
         parent->children[parent->count++] = child;
     else {
@@ -163,12 +166,11 @@ static struct AC_Dict* AC_New_Empty_Dict(void) {
 }
 
 struct AC_Dict* AC_New_Dict(const char* path) {
-    char                    utf8_line[256];
-    size_t                  utf8_length;
     struct AC_Dict* dict = NULL;
-
-    size_t  path_length = 0;
-    FILE* file;
+    char            utf8_line[256];
+    size_t          utf8_length;
+    size_t          path_length = 0;
+    FILE*           file;
 
     dict = AC_New_Empty_Dict();
     if(path == 0) { //mainly for testing

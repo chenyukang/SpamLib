@@ -75,7 +75,7 @@ int random_test() {
     char line[246];
     char cmp[256];
     int i, k;
-    
+
     FILE* fp = fopen(file, "r");
     struct AC_Dict* dict = AC_New_Dict(0);
     memset(buf, 0, sizeof(buf));
@@ -128,6 +128,7 @@ int random_test() {
     for(i=0; i<line_cnt; i++)
         free(buf[i]);
     AC_Destory_Dict(dict);
+    return 0;
 }
 
 int one_char_test() {
@@ -136,7 +137,7 @@ int one_char_test() {
     unsigned int* res;
     char line[256];
     char c;
-    
+
     res = (unsigned int*)malloc(sizeof(unsigned int) * 256);
     for(c='a'; c<='z'; c++) {
         memset(line, 0, sizeof(line));

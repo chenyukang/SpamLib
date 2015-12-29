@@ -27,4 +27,4 @@ How to use in C?
 
 ## License
 
-(The FreeBSD Copyright)[http://www.freebsd.org/copyright/freebsd-license.html]
+[The FreeBSD Copyright](http://www.freebsd.org/copyright/freebsd-license.html)
